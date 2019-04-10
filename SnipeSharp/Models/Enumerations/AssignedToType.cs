@@ -11,13 +11,13 @@ namespace SnipeSharp.Models.Enumerations
     public enum AssignedToType
     {
         /// <summary>The object is assigned to a User.</summary>
-        [EnumMember(Value = "user")]
+        [EnumMember(Value = "App\\Models\\User")]
         User,
         /// <summary>The object is assigned to a Location.</summary>
-        [EnumMember(Value = "location")]
+        [EnumMember(Value = "App\\Models\\Location")]
         Location,
         /// <summary>The object is assigned to an Asset.</summary>
-        [EnumMember(Value = "asset")]
+        [EnumMember(Value = "App\\Models\\Asset")]
         Asset
     }
 }
