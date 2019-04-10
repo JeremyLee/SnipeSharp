@@ -11,6 +11,14 @@ namespace SnipeSharp.Models
     /// </summary>
     public sealed class GenericEndPointModel: CommonEndPointModel
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public GenericEndPointModel() { }
+
+        internal GenericEndPointModel(int id) {
+            this.Id = id;
+        }
         /// <value>The internal Id of the object.</value>
         [Field("id")]
         public override int Id { get; protected set; }
