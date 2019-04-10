@@ -46,9 +46,8 @@ namespace SnipeSharp.PowerShell.Cmdlets
             else
                 throw new ApiErrorException($"Could not validate a connection to Snipe-IT at Uri \"{Uri}\".");
 
-#if DEBUG
+
             WriteObject(ApiHelper.Instance);
-#endif
         }
     }
 }
