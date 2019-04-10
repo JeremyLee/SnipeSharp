@@ -207,9 +207,21 @@ namespace SnipeSharp.PowerShell.Cmdlets
                 item.PurchaseDate = PurchaseDate;
             if(MyInvocation.BoundParameters.ContainsKey(nameof(WarrantyMonths)))
                 item.WarrantyMonths = WarrantyMonths;
-            if(MyInvocation.BoundParameters.ContainsKey(nameof(CustomFields)) && !(CustomFields is null))
-                foreach(var pair in CustomFields)
-                    item.CustomFields[pair.Key] = new AssetCustomField { Field = pair.Key, Value = pair.Value };
+            if(MyInvocation.BoundParameters.ContainsKey(nameof(CustomFields)) && !(CustomFields is null)) {
+                foreach(var pair in CustomFields) {
+                    if (item.CustomFields.ContainsKey(pair.Key)) {
+                        // We need to preserve the AssetCustomField object, since its Field property
+                        // (the custom attribute internal identifier) isn't predictable.
+                        item.CustomFields[pair.Key].Value = pair.Value;
+                    } else {
+                        // When updating an asset, the asset is first retrieved. Therefore, any custom fields assigned
+                        // to the asset are already loaded in the CustomFields dictionary, even if they have no value.
+                        // If Snipe-IT didn't return the custom field, it's not assigned to the asset model,
+                        // and cannot be set.
+                        throw new ArgumentException($"CustomAttribute '{pair.Key}' does not exist for this asset.");
+                    }
+                }
+            }
             return true;
         }
 
