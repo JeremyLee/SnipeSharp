@@ -13,6 +13,9 @@ namespace SnipeSharp.Models.Enumerations
         /// <summary>The field type is a list selection.</summary>
         [EnumMember(Value = "list")]
         List,
+        /// <summary>The field type is a list selection.</summary>
+        [EnumMember(Value = "listbox")]
+        ListBox,
         /// <summary>The field type is a text field.</summary>
         [EnumMember(Value = "text")]
         Text,

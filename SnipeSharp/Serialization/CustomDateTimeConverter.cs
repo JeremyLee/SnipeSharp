@@ -25,6 +25,8 @@ namespace SnipeSharp.Serialization
                 var @object = token.ToObject<DateTimeResponse>();
                 if(!(@object is null) && !string.IsNullOrWhiteSpace(@object.DateTime) && DateTime.TryParse(@object.DateTime, out dateTime))
                     return dateTime;
+                if(!(@object is null) && !string.IsNullOrWhiteSpace(@object.Date) && DateTime.TryParse(@object.Date, out dateTime))
+                    return dateTime;
             }
             return null;
         }
@@ -37,6 +39,12 @@ namespace SnipeSharp.Serialization
     {
         [Field("datetime")]
         public string DateTime { get; set; }
+
+        /// <summary>
+        /// Some responses have the date in a date object rather than datetime.
+        /// </summary>
+        [Field("date")]
+        public string Date { get; set; }
 
         [Field("formatted")]
         public string Formatted { get; set; }
