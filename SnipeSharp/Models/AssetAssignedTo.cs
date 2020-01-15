@@ -116,5 +116,11 @@ namespace SnipeSharp.Models
             // asset assignments have no extension data to copy
             return new Asset(Id) { Name = this.Name };
         }
+
+        /// <summary>
+        /// Operators to allow the JSON conversion when Snipe-IT returns an int instead of a proper object, such as during an asset update.
+        /// </summary>
+        /// <param name="value"></param>
+        public static explicit operator AssetAssignedTo(long value) => new AssetAssignedTo() { Id = (int)value };
     }
 }

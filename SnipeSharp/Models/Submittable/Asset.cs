@@ -183,6 +183,9 @@ namespace SnipeSharp.Models
         [Field(DeserializeAs = "assigned_to", Converter = CommonModelConverter)]
         public AssetAssignedTo AssignedTo { get; private set; }
 
+        [Field(DeserializeAs = "assigned_type")]
+        public string AssignedType { get; private set; }
+
         /// <value>If the assigned object has been modified.</value>
         /// <remarks>Tracking this lets us skip it when writing back.</remarks>
         private bool _updateAssignedTo = false;
@@ -373,6 +376,11 @@ namespace SnipeSharp.Models
                     });
                 }
                 _customFields = null;
+            }
+
+            if(AssignedType?.Contains("App\\Models\\") == true)
+            {
+                AssignedTo.Type = (AssignedToType)Enum.Parse(typeof(AssignedToType), AssignedType.Substring(AssignedType.LastIndexOf('\\') + 1));
             }
             return;
         }
