@@ -14,6 +14,7 @@ namespace SnipeSharp.Collections
         internal CustomFieldDictionary()
         {
             Friendly = new FriendlyNameDictionary(this);
+            FriendlyNames = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(FriendlyNamesInternal);
         }
 
         private Dictionary<string, AssetCustomField> BackingDictionary = new Dictionary<string, AssetCustomField>();
@@ -22,7 +23,10 @@ namespace SnipeSharp.Collections
         public IDictionary<string, AssetCustomField> Models => (IDictionary<string, AssetCustomField>)this;
 
         /// <summary>Maps the friendly names to the internal database column names.</summary>
-        private Dictionary<string, string> FriendlyNames = new Dictionary<string, string>();
+        private Dictionary<string, string> FriendlyNamesInternal = new Dictionary<string, string>();
+
+        /// <summary>A readonly view of the mappings between Friendly Names and database names.</summary>
+        public System.Collections.ObjectModel.ReadOnlyDictionary<string, string> FriendlyNames { get; private set; }
 
         /// <summary>This same dictionary, but mapping from friendly names instead of internal column names.</summary>
         public FriendlyNameDictionary Friendly { get; }
@@ -92,7 +96,7 @@ namespace SnipeSharp.Collections
                         Value = value.Value
                     };
                 }
-                var hasFriendlyName = FriendlyNames.TryGetValue(value.FriendlyName, out var existingKey);
+                var hasFriendlyName = FriendlyNamesInternal.TryGetValue(value.FriendlyName, out var existingKey);
                 if(hasFriendlyName && existingKey != value.Field)
                     throw new ArgumentException($"The dictionary already contains a friendly name \"{value.FriendlyName}\"");
                 if(!BackingDictionary.ContainsKey(key))
@@ -102,9 +106,9 @@ namespace SnipeSharp.Collections
                 {
                     // remove the non-matching friendly name for the existing field.
                     if(!hasFriendlyName)
-                        FriendlyNames.Remove(BackingDictionary[value.Field].FriendlyName);
+                        FriendlyNamesInternal.Remove(BackingDictionary[value.Field].FriendlyName);
                     BackingDictionary[value.Field] = value;
-                    FriendlyNames[value.FriendlyName] = value.Field;
+                    FriendlyNamesInternal[value.FriendlyName] = value.Field;
                 }
             }
         }
@@ -171,10 +175,10 @@ namespace SnipeSharp.Collections
             }
             if(ContainsKey(value.Field))
                 throw new ArgumentException($"The dictionary already contains a key \"{value.Field}\"");
-            if(FriendlyNames.ContainsKey(value.FriendlyName))
+            if(FriendlyNamesInternal.ContainsKey(value.FriendlyName))
                 throw new ArgumentException($"The dictionary already contains a friendly name \"{value.FriendlyName}\"");
             BackingDictionary.Add(value.Field, value);
-            FriendlyNames.Add(value.FriendlyName, value.Field);
+            FriendlyNamesInternal.Add(value.FriendlyName, value.Field);
         }
 
         /// <inheritdoc />
@@ -189,7 +193,7 @@ namespace SnipeSharp.Collections
         public void Clear()
         {
             BackingDictionary.Clear();
-            FriendlyNames.Clear();
+            FriendlyNamesInternal.Clear();
         }
 
         void ICollection<KeyValuePair<string, AssetCustomField>>.CopyTo(KeyValuePair<string, AssetCustomField>[] array, int arrayIndex)
@@ -199,7 +203,7 @@ namespace SnipeSharp.Collections
         public bool Remove(string key)
         {
             if(BackingDictionary.TryGetValue(key, out var value))
-                FriendlyNames.Remove(value.FriendlyName);
+                FriendlyNamesInternal.Remove(value.FriendlyName);
             return BackingDictionary.Remove(key);
         }
 
@@ -208,7 +212,7 @@ namespace SnipeSharp.Collections
             if(!Contains(item))
                 return false;
             if(BackingDictionary.TryGetValue(item.Key, out var value))
-                FriendlyNames.Remove(value.FriendlyName);
+                FriendlyNamesInternal.Remove(value.FriendlyName);
             return ((IDictionary<string,AssetCustomField>)BackingDictionary).Remove(item);
         }
 
@@ -237,12 +241,12 @@ namespace SnipeSharp.Collections
             /// <inheritdoc />
             public string this[string key]
             {
-                get => CustomFields[CustomFields.FriendlyNames[key]];
-                set => CustomFields[CustomFields.FriendlyNames[key]] = value;
+                get => CustomFields[CustomFields.FriendlyNamesInternal[key]];
+                set => CustomFields[CustomFields.FriendlyNamesInternal[key]] = value;
             }
 
             /// <inheritdoc />
-            public IEnumerable<string> Keys => CustomFields.FriendlyNames.Keys;
+            public IEnumerable<string> Keys => CustomFields.FriendlyNamesInternal.Keys;
 
             /// <inheritdoc />
             public IEnumerable<string> Values => CustomFields.StringValues;
@@ -252,18 +256,18 @@ namespace SnipeSharp.Collections
 
             /// <inheritdoc />
             public bool ContainsKey(string key)
-                => CustomFields.FriendlyNames.ContainsKey(key);
+                => CustomFields.FriendlyNamesInternal.ContainsKey(key);
 
             /// <inheritdoc />
             public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
             {
                 foreach(var key in Keys)
-                    yield return new KeyValuePair<string, string>(key, CustomFields[CustomFields.FriendlyNames[key]]);
+                    yield return new KeyValuePair<string, string>(key, CustomFields[CustomFields.FriendlyNamesInternal[key]]);
             }
 
             /// <inheritdoc />
             public bool TryGetValue(string key, out string value)
-                => CustomFields.TryGetValue(CustomFields.FriendlyNames[key], out value);
+                => CustomFields.TryGetValue(CustomFields.FriendlyNamesInternal[key], out value);
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
